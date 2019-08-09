@@ -25,13 +25,10 @@ public class ProjectUserController {
             User user = userRepository.findById(request.getUserId()).get();
             Project project = projectRepository.findById(request.getProjectId()).get();
 
-            user.getProjects().add(project);
+//            user.getProjects().add(project);
             project.getUsers().add(user);
-            userRepository.save(user);
+//            userRepository.save(user);
             projectRepository.save(project);
-
-            projectRepository.save(project);
-            userRepository.save(user);
         }
     }
 }

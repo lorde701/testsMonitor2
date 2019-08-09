@@ -16,12 +16,12 @@ public class User {
     @Getter @Setter
     String name;
 
-    @Getter @Setter
-    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "users")
-    Set<Project> projects;
-
-    public User(Long id, String name) {
-        this.id = id;
-        this.name = name;
-    }
+//    @Getter @Setter
+//    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "users")
+//    Set<Project> projects;
+//
+//    public User(Long id, String name) {
+//        this.id = id;
+//        this.name = name;
+//    }
 }
