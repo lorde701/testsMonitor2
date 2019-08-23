@@ -1,12 +1,15 @@
 package ru.aplana.request;
 
 import lombok.*;
+import org.jetbrains.annotations.NotNull;
 
 @Builder
-public class AddUserToProject {
+public class UserProjectRequest {
+    @NotNull
     @Getter @Setter
     Long userId;
 
+    @NotNull
     @Getter @Setter
     Long projectId;
 }

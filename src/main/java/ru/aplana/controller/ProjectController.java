@@ -4,43 +4,99 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import ru.aplana.entity.Project;
+import ru.aplana.entity.User;
 import ru.aplana.repository.ProjectRepository;
 import ru.aplana.request.AddProjectRequest;
-import ru.aplana.request.AddUserToProject;
+import ru.aplana.request.UserProjectRequest;
 import ru.aplana.service.ProjectService;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.function.Consumer;
 
 @RestController
 @RequestMapping("/api/project")
-public class ProjectController {
+class ProjectController {
 
     @Autowired
-    private
-    ProjectRepository projectRepository;
+    private ProjectRepository projectRepository;
 
     @Autowired
-    private
-    ProjectService projectService;
+    private ProjectService projectService;
+
+    @Autowired
+    private UserController userController;
+
 
     @RequestMapping(value = "/addProject", method = RequestMethod.POST, consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public Project add(@RequestBody AddProjectRequest request) {
+    Project add(@RequestBody AddProjectRequest request) {
         Project project = new Project(request.getProjectName());
         return projectRepository.save(project);
     }
 
     @RequestMapping(value = "/getProjects", method = RequestMethod.GET)
-    public List<Project> getAll() {
+    List<Project> getAll() {
         return projectService.findAll();
     }
 
-//    @RequestMapping(value = "/addUserToProject", method = RequestMethod.POST, consumes = {MediaType.APPLICATION_JSON_VALUE})
-//    public void addUserToProject(@RequestBody AddUserToProject request) {
-//        Project project = projectRepository.findById(request.getProjectId()).get();
-//        if (project != null) {
-//            project.getUsers().add()
-//        }
+    @RequestMapping(value = "/getProjectById/{id}", method = RequestMethod.GET)
+    Project getById(@PathVariable Long id) {
+        try {
+            return projectService.findById(id);
+        } catch (NoSuchElementException e) {
+            return null;
+        }
+    }
+
+    @RequestMapping(value = "/deleteById/{id}", method = RequestMethod.DELETE)
+    void deleteById(@PathVariable Long id) {
+        projectRepository.deleteById(id);
+    }
+
+    @RequestMapping(value = "/addUser", method = RequestMethod.POST, consumes = {MediaType.APPLICATION_JSON_VALUE})
+    void addUserToProject(@RequestBody UserProjectRequest request) throws Exception {
+        User user = userController.getUserById(request.getUserId())
+                .orElseThrow(() -> new Exception(String.format("В таблице User не был найден user с id <%s>"
+                        , request.getUserId())));
+        Project project = projectRepository.findById(request.getProjectId())
+                .orElseThrow(() -> new Exception(String.format("В таблице Project не был найден project с id <%s>"
+                        , request.getProjectId())));
+
+        Set<User> users = project.getUsers();
+        users.add(user);
+        project.setUsers(users);
+        projectRepository.save(project);
+    }
+
+    @RequestMapping(value = "/removeUser", method = RequestMethod.POST, consumes = {MediaType.APPLICATION_JSON_VALUE})
+    void removeUserFromProject(@RequestBody UserProjectRequest request) throws Exception {
+        User user = userController.getUserById(request.getUserId())
+                .orElseThrow(() -> new Exception(String.format("В таблице User не был найден user с id <%s>"
+                        , request.getUserId())));
+        Project project = projectRepository.findById(request.getProjectId())
+                .orElseThrow(() -> new Exception(String.format("В таблице Project не был найден project с id <%s>"
+                        , request.getProjectId())));
+
+        Set<User> users = project.getUsers();
+        users.remove(user);
+        project.setUsers(users);
+        projectRepository.save(project);
+    }
+
+
+//    private void addOrRemoveUser(UserProjectRequest request, Consumer<>) throws Exception {
+//        User user = userController.getUserById(request.getUserId())
+//                .orElseThrow(() -> new Exception(String.format("В таблице User не был найден user с id <%s>"
+//                        , request.getUserId())));
+//        Project project = projectRepository.findById(request.getProjectId())
+//                .orElseThrow(() -> new Exception(String.format("В таблице Project не был найден project с id <%s>"
+//                        , request.getProjectId())));
 //
+//        Set<User> users = project.getUsers();
+//        users.remove(user);
+//        project.setUsers(users);
+//        projectRepository.save(project);
 //    }
+
 }
