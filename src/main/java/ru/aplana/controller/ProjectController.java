@@ -10,10 +10,11 @@ import ru.aplana.request.AddProjectRequest;
 import ru.aplana.request.UserProjectRequest;
 import ru.aplana.service.ProjectService;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.function.Consumer;
+import java.util.function.BiFunction;
 
 @RestController
 @RequestMapping("/api/project")
@@ -56,21 +57,29 @@ class ProjectController {
 
     @RequestMapping(value = "/addUser", method = RequestMethod.POST, consumes = {MediaType.APPLICATION_JSON_VALUE})
     void addUserToProject(@RequestBody UserProjectRequest request) throws Exception {
-        User user = userController.getUserById(request.getUserId())
-                .orElseThrow(() -> new Exception(String.format("В таблице User не был найден user с id <%s>"
-                        , request.getUserId())));
-        Project project = projectRepository.findById(request.getProjectId())
-                .orElseThrow(() -> new Exception(String.format("В таблице Project не был найден project с id <%s>"
-                        , request.getProjectId())));
-
-        Set<User> users = project.getUsers();
-        users.add(user);
-        project.setUsers(users);
-        projectRepository.save(project);
+        updateUser(request, (users, user) -> {
+            Set<User> result;
+            if (users == null) {
+                result = new HashSet<>();
+            } else {
+                result = new HashSet<>(users);
+            }
+            result.add(user);
+            return result;
+        });
     }
 
     @RequestMapping(value = "/removeUser", method = RequestMethod.POST, consumes = {MediaType.APPLICATION_JSON_VALUE})
     void removeUserFromProject(@RequestBody UserProjectRequest request) throws Exception {
+        updateUser(request, (users, user) -> {
+            Set<User> result = new HashSet<>(users);
+            result.remove(user);
+            return result;
+        });
+    }
+
+
+    private void updateUser(UserProjectRequest request, BiFunction<Set<User>, User, Set<User>> biFunction) throws Exception {
         User user = userController.getUserById(request.getUserId())
                 .orElseThrow(() -> new Exception(String.format("В таблице User не был найден user с id <%s>"
                         , request.getUserId())));
@@ -79,24 +88,9 @@ class ProjectController {
                         , request.getProjectId())));
 
         Set<User> users = project.getUsers();
-        users.remove(user);
+        users = biFunction.apply(users, user);
         project.setUsers(users);
         projectRepository.save(project);
     }
-
-
-//    private void addOrRemoveUser(UserProjectRequest request, Consumer<>) throws Exception {
-//        User user = userController.getUserById(request.getUserId())
-//                .orElseThrow(() -> new Exception(String.format("В таблице User не был найден user с id <%s>"
-//                        , request.getUserId())));
-//        Project project = projectRepository.findById(request.getProjectId())
-//                .orElseThrow(() -> new Exception(String.format("В таблице Project не был найден project с id <%s>"
-//                        , request.getProjectId())));
-//
-//        Set<User> users = project.getUsers();
-//        users.remove(user);
-//        project.setUsers(users);
-//        projectRepository.save(project);
-//    }
 
 }

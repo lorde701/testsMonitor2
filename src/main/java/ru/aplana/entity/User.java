@@ -17,7 +17,7 @@ public class User {
     String name;
 
     @Getter @Setter
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "users")
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "users")
     Set<Project> projects;
     public User(Long id, String name) {
         this.id = id;

@@ -6,6 +6,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 import ru.aplana.entity.Project;
 import ru.aplana.entity.User;
 import ru.aplana.request.AddProjectRequest;
@@ -45,12 +46,13 @@ public class ProjectControllerTest {
     }
 
     @Test
+    @Transactional
     public void addLink() throws Exception {
         Project project = projectController.add(AddProjectRequest.builder().projectName("zxc1").build());
         User user = userController.add(AddUserRequest.builder().id(111L).name("qwe789").build());
-
-
+//        User user2 = userController.add(AddUserRequest.builder().id(112L).name("qwe788").build());
         projectController.addUserToProject(UserProjectRequest.builder().userId(user.getId()).projectId(project.getId()).build());
+//        projectController.addUserToProject(UserProjectRequest.builder().userId(user2.getId()).projectId(project.getId()).build());
         projectController.removeUserFromProject(UserProjectRequest.builder().userId(user.getId()).projectId(project.getId()).build());
         projectController.getById(project.getId());
     }
