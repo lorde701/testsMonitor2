@@ -8,11 +8,12 @@ import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException
 import ru.aplana.autotests.telegram.UserContext
+import ru.aplana.telegram.UserContextJava
 
 
 class MyBotAbility : AbilityBot {
 
-    private val userContextMap = HashMap<Long, UserContext>()
+    private val userContextMap = HashMap<Long, UserContextJava>()
 
     private val sendNewMessage: (SendMessage) -> Unit = { sm ->
         try {
@@ -56,7 +57,7 @@ class MyBotAbility : AbilityBot {
 
 //        sendMsg(message, "Вы написали: ${message.text}")
 
-        (userContextMap as java.util.Map<Long, UserContext>).computeIfAbsent(chatId) { k -> UserContext(chatId, sendNewMessage) }
+        (userContextMap as java.util.Map<Long, UserContextJava>).computeIfAbsent(chatId) { k -> UserContextJava(chatId, sendNewMessage) }
                 .onMessageReceived(message)
     }
 
