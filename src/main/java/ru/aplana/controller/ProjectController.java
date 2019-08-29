@@ -1,7 +1,10 @@
 package ru.aplana.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import ru.aplana.entity.Project;
 import ru.aplana.entity.User;
@@ -18,7 +21,7 @@ import java.util.function.BiFunction;
 
 @RestController
 @RequestMapping("/api/project")
-class ProjectController {
+public class ProjectController {
 
     @Autowired
     private ProjectRepository projectRepository;
@@ -31,18 +34,18 @@ class ProjectController {
 
 
     @RequestMapping(value = "/addProject", method = RequestMethod.POST, consumes = {MediaType.APPLICATION_JSON_VALUE})
-    Project add(@RequestBody AddProjectRequest request) {
+    public Project add(@RequestBody AddProjectRequest request) {
         Project project = new Project(request.getProjectName());
         return projectRepository.save(project);
     }
 
     @RequestMapping(value = "/getProjects", method = RequestMethod.GET)
-    List<Project> getAll() {
+    public List<Project> getAll() {
         return projectService.findAll();
     }
 
     @RequestMapping(value = "/getProjectById/{id}", method = RequestMethod.GET)
-    Project getById(@PathVariable Long id) {
+    public Project getById(@PathVariable Long id) {
         try {
             return projectService.findById(id);
         } catch (NoSuchElementException e) {
@@ -51,12 +54,12 @@ class ProjectController {
     }
 
     @RequestMapping(value = "/deleteById/{id}", method = RequestMethod.DELETE)
-    void deleteById(@PathVariable Long id) {
+    public void deleteById(@PathVariable Long id) {
         projectRepository.deleteById(id);
     }
 
     @RequestMapping(value = "/addUser", method = RequestMethod.POST, consumes = {MediaType.APPLICATION_JSON_VALUE})
-    void addUserToProject(@RequestBody UserProjectRequest request) throws Exception {
+    public void addUserToProject(@RequestBody UserProjectRequest request) throws Exception {
         updateUser(request, (users, user) -> {
             Set<User> result;
             if (users == null) {
@@ -70,7 +73,7 @@ class ProjectController {
     }
 
     @RequestMapping(value = "/removeUser", method = RequestMethod.POST, consumes = {MediaType.APPLICATION_JSON_VALUE})
-    void removeUserFromProject(@RequestBody UserProjectRequest request) throws Exception {
+    public void removeUserFromProject(@RequestBody UserProjectRequest request) throws Exception {
         updateUser(request, (users, user) -> {
             Set<User> result = new HashSet<>(users);
             result.remove(user);
@@ -94,3 +97,6 @@ class ProjectController {
     }
 
 }
+
+
+

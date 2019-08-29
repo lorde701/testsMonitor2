@@ -30,7 +30,7 @@ public class ProjectControllerTest {
     public void check() {
         String projectName = "project1";
 
-        Project project = projectController.add(AddProjectRequest.builder().projectName(projectName).build());
+        Project project = projectController.add(new AddProjectRequest(projectName));
         Assert.assertEquals(project.getName(), projectName);
         Project projectFromService = projectController.getById(project.getId());
         Assert.assertEquals(projectFromService.getName(), projectName);
@@ -41,19 +41,19 @@ public class ProjectControllerTest {
     @Test
     public void addProjectName() {
         String projectName = "testProject2";
-        Project project = projectController.add(AddProjectRequest.builder().projectName(projectName).build());
+        Project project = projectController.add(new AddProjectRequest(projectName));
         Assert.assertEquals(project.getName(), projectName);
     }
 
     @Test
     @Transactional
     public void addLink() throws Exception {
-        Project project = projectController.add(AddProjectRequest.builder().projectName("zxc1").build());
-        User user = userController.add(AddUserRequest.builder().id(111L).name("qwe789").build());
+        Project project = projectController.add(new AddProjectRequest("zxc1"));
+        User user = userController.add(new AddUserRequest(111L, "qwe789"));
 //        User user2 = userController.add(AddUserRequest.builder().id(112L).name("qwe788").build());
-        projectController.addUserToProject(UserProjectRequest.builder().userId(user.getId()).projectId(project.getId()).build());
+        projectController.addUserToProject(new UserProjectRequest(user.getId(),project.getId()));
 //        projectController.addUserToProject(UserProjectRequest.builder().userId(user2.getId()).projectId(project.getId()).build());
-        projectController.removeUserFromProject(UserProjectRequest.builder().userId(user.getId()).projectId(project.getId()).build());
+        projectController.removeUserFromProject(new UserProjectRequest(user.getId(),project.getId()));
         projectController.getById(project.getId());
     }
 }

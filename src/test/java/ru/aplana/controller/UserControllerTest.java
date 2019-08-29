@@ -9,8 +9,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import ru.aplana.entity.User;
 import ru.aplana.request.AddUserRequest;
 
-import static org.junit.Assert.*;
-
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class UserControllerTest {
@@ -27,7 +25,7 @@ public class UserControllerTest {
         Long id = 1000001L;
         String name = "test2";
 
-        userController.add(AddUserRequest.builder().id(id).name(name).build());
+        userController.add(new AddUserRequest(id, name));
         User user = userController.getUserById(id).get();
         Assert.assertEquals(user.getName(), name);
         Assert.assertEquals(user.getId(), id);
