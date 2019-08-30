@@ -1,11 +1,14 @@
 package ru.aplana
 
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.stereotype.Component
 import ru.aplana.autotests.TelegramBotInitialization
 
-@Component
-class AppTelegramBot {
-    companion object {
+@Configuration
+open class AppTelegramBot {
+    //    companion object {
     private val BOT_NAME_PROP_KEY = "BOT_NAME"
     private val BOT_TOKEN_PROP_KEY = "BOT_TOKEN"
 
@@ -30,52 +33,52 @@ class AppTelegramBot {
     }
 
 
+    @Bean
+    @Throws(Exception::class)
+    open fun setup() {
+        setupBot()
+    }
 
-        @Throws(Exception::class)
-        fun setup() {
-            setupBot()
+
+    @Throws(Exception::class)
+    private fun setupBot() {
+        val botName = System.getProperty(BOT_NAME_PROP_KEY)
+        val botToken = System.getProperty(BOT_TOKEN_PROP_KEY)
+
+        if (botName == null || botToken == null) {
+            throw Exception("Not input bot name or token")
         }
 
+        var isUseProxy = false
 
-        @Throws(Exception::class)
-        private fun setupBot() {
-            val botName = System.getProperty(BOT_NAME_PROP_KEY)
-            val botToken = System.getProperty(BOT_TOKEN_PROP_KEY)
+        try {
+            isUseProxy = java.lang.Boolean.valueOf(System.getProperty(USE_PROXY_PROP_KEY))
+        } catch (ignore: Exception) {
+        }
 
-            if (botName == null || botToken == null) {
-                throw Exception("Not input bot name or token")
+        if (isUseProxy) {
+            val proxyHost = System.getProperty(PROXY_HOST_PROP_KEY)
+            val proxyPort = System.getProperty(PROXY_PORT_PROP_KEY)
+            val proxyUser = System.getProperty(PROXY_USER_PROP_KEY)
+            val proxyPassword = System.getProperty(PROXY_PASSWORD_PROP_KEY)
+
+            if (proxyHost == null || proxyPort == null || proxyUser == null || proxyPassword == null) {
+                throw Exception("Not input proxyHost, proxyPort, proxyUser or proxyPassword")
             }
 
-            var isUseProxy = false
-
+            val proxyPortNumber: Int
             try {
-                isUseProxy = java.lang.Boolean.valueOf(System.getProperty(USE_PROXY_PROP_KEY))
-            } catch (ignore: Exception) {
+                proxyPortNumber = Integer.parseInt(proxyPort)
+            } catch (e: NumberFormatException) {
+                throw Exception("Proxy port should be number")
             }
 
-            if (isUseProxy) {
-                val proxyHost = System.getProperty(PROXY_HOST_PROP_KEY)
-                val proxyPort = System.getProperty(PROXY_PORT_PROP_KEY)
-                val proxyUser = System.getProperty(PROXY_USER_PROP_KEY)
-                val proxyPassword = System.getProperty(PROXY_PASSWORD_PROP_KEY)
+            TelegramBotInitialization.init(botName, botToken, proxyHost, proxyPortNumber, proxyUser, proxyPassword)
 
-                if (proxyHost == null || proxyPort == null || proxyUser == null || proxyPassword == null) {
-                    throw Exception("Not input proxyHost, proxyPort, proxyUser or proxyPassword")
-                }
-
-                val proxyPortNumber: Int
-                try {
-                    proxyPortNumber = Integer.parseInt(proxyPort)
-                } catch (e: NumberFormatException) {
-                    throw Exception("Proxy port should be number")
-                }
-
-                TelegramBotInitialization.init(botName, botToken, proxyHost, proxyPortNumber, proxyUser, proxyPassword)
-
-            } else {
-                TelegramBotInitialization.init(botName, botToken)
-            }
+        } else {
+            TelegramBotInitialization.init(botName, botToken)
         }
     }
+//    }
 
 }

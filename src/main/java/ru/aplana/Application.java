@@ -9,8 +9,9 @@ import org.telegram.telegrambots.ApiContextInitializer;
 public class Application extends SpringBootServletInitializer {
 
     public static void main(String[] args) throws Exception {
-//        ApiContextInitializer.init();
-        AppTelegramBot.Companion.setup();
+        ApiContextInitializer.init();
+//        AppTelegramBot.Companion.setup();
+//        SpringApplication.run(Application.class, args);
         SpringApplication.run(Application.class, args);
     }
 }
